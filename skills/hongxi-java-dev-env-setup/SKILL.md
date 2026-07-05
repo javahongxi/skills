@@ -51,7 +51,7 @@ description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (J
 | Redis | 端口 6379 是否占用 | `lsof -i :6379` |
 | ZooKeeper | 端口 2181 是否占用；$HOME 和 $HOME/Downloads 下是否存在 zookeeper 目录 | `lsof -i :2181`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "zookeeper*"` |
 | MySQL | 命令是否存在 | `mysql --version` |
-| Nacos | 端口 8848 是否占用 | `lsof -i :8848` |
+| Nacos | nacos 快捷命令是否存在；端口 8848 是否占用；$HOME 和 $HOME/Downloads 下是否存在 nacos 目录 | `command -v nacos`；`lsof -i :8848`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "nacos*"` |
 | Kafka | 端口 9092 是否占用；$HOME 和 $HOME/Downloads 下是否存在 kafka 目录 | `lsof -i :9092`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "kafka*"` |
 | Elasticsearch | 端口 9200 是否响应；$HOME 和 $HOME/Downloads 下是否存在 elasticsearch 目录 | `curl -s localhost:9200`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "elasticsearch*"` |
 | RocketMQ | $HOME 和 $HOME/Downloads 下是否存在 rocketmq 目录 | `find $HOME $HOME/Downloads -maxdepth 1 -type d -name "rocketmq*"` |
@@ -143,8 +143,8 @@ fi
 ### 6. Nacos
 
 ```bash
-# 检查是否已安装（端口或目录）
-if lsof -i :8848 &>/dev/null || [ -d "$HOME/ai-infra/nacos/standalone/nacos-3.2.2" ]; then
+NACOS_DIR=$(find $HOME $HOME/Downloads -maxdepth 1 -type d -name "nacos*" 2>/dev/null | head -1)
+if command -v nacos &>/dev/null || lsof -i :8848 &>/dev/null || [ -d "$HOME/ai-infra/nacos/standalone/nacos-3.2.2" ] || [ -n "$NACOS_DIR" ]; then
   echo "Nacos 已安装，跳过"
 else
   # 下载官方安装脚本
