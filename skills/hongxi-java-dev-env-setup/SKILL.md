@@ -50,7 +50,7 @@ description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (J
 | Maven | 命令是否存在 | `command -v mvn` |
 | Redis | 端口 6379 是否占用 | `lsof -i :6379` |
 | ZooKeeper | 端口 2181 是否占用；$HOME 和 $HOME/Downloads 下是否存在 zookeeper 目录 | `lsof -i :2181`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "zookeeper*"` |
-| MySQL | 命令是否存在 | `mysql --version` |
+| MySQL | mysql 命令是否存在；/usr/local/mysql 目录是否存在；mysqld 进程是否运行 | `mysql --version`；`[ -d /usr/local/mysql ]`；`ps aux \| grep mysqld \| grep -v grep` |
 | Nacos | nacos 快捷命令是否存在；端口 8848 是否占用；$HOME 和 $HOME/Downloads 下是否存在 nacos 目录 | `command -v nacos`；`lsof -i :8848`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "nacos*"` |
 | Kafka | 端口 9092 是否占用；$HOME 和 $HOME/Downloads 下是否存在 kafka 目录 | `lsof -i :9092`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "kafka*"` |
 | Elasticsearch | 端口 9200 是否响应；$HOME 和 $HOME/Downloads 下是否存在 elasticsearch 目录 | `curl -s localhost:9200`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "elasticsearch*"` |
@@ -130,7 +130,7 @@ fi
 ### 5. MySQL
 
 ```bash
-if mysql --version &>/dev/null; then
+if mysql --version &>/dev/null || [ -d /usr/local/mysql ] || ps aux | grep mysqld | grep -v grep &>/dev/null; then
   echo "MySQL 已安装，跳过"
 else
   brew install mysql
