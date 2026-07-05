@@ -8,6 +8,19 @@
 npx skills add javahongxi/skills
 ```
 
+## 更新
+
+```shell
+# 更新所有项目级 Skill
+npx skills update
+
+# 更新全局 Skill
+npx skills update -g
+
+# 更新特定 Skill
+npx skills update my-skill
+```
+
 ## 可用 Skills
 
 | Skill                                                            | 说明                                                                       | 触发方式                           |
