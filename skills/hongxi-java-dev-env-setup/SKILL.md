@@ -1,11 +1,11 @@
 ---
 name: hongxi-java-dev-env-setup
-description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (JDK 17/21)、Maven、Redis、ZooKeeper、Nacos、MySQL、Kafka、Elasticsearch、RocketMQ、Go、Git、Node.js、Python，配置 API Key 环境变量和中间件快捷命令。当用户要求初始化开发环境、搭建 Java 环境、配置开发机、setup dev env 时触发。
+description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (JDK 17/21)、Maven、Redis、ZooKeeper、Nacos、MySQL、PostgreSQL、Kafka、Elasticsearch、RocketMQ、Go、Git、Node.js、Python，配置 API Key 环境变量和中间件快捷命令。当用户要求初始化开发环境、搭建 Java 环境、配置开发机、setup dev env 时触发。
 ---
 
 # Java 开发环境初始化
 
-在新 Mac 上搭建完整的 Java 全栈开发环境，覆盖 whatsmars 项目核心技术所需的基础设施，包括 Java、Maven、中间件、数据库、搜索引擎、消息队列、Go、Git、Node.js、Python 环境及常用快捷命令。
+在新 Mac 上搭建完整的 Java 全栈开发环境，覆盖 whatsmars 项目核心技术所需的基础设施，包括 Java、Maven、中间件、数据库（MySQL、PostgreSQL）、搜索引擎、消息队列、Go、Git、Node.js、Python 环境及常用快捷命令。
 
 ## 安装策略
 
@@ -20,23 +20,24 @@ description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (J
 
 ## 安装清单
 
-| 组件 | 安装方式 | 版本要求 |
-|---|---|---|
-| Homebrew | 官方脚本 | 最新 |
-| Java (JDK 17) | `brew install openjdk@17` | 17 |
-| Java (JDK 21) | `brew install openjdk@21` | 21（JAVA_HOME 默认版本） |
-| Maven | `brew install maven` | 最新稳定版 |
-| Redis | `brew install redis` | 最新稳定版 |
-| ZooKeeper | `brew install zookeeper` | 最新稳定版 |
-| MySQL | `brew install mysql` | 最新稳定版 |
-| Nacos | 官方安装脚本 | 3.2.2 |
-| Kafka | `brew install kafka` | 最新稳定版 |
-| Elasticsearch | `brew install elasticsearch` | 最新稳定版 |
-| RocketMQ | 官方压缩包解压 | 5.5.0 |
-| Go | `brew install go` | 最新稳定版 |
-| Git | `brew install git` | 最新稳定版 |
-| Node.js/npm | `brew install node` | 最新 LTS 版本 |
-| Python | `brew install python` | 最新稳定版 |
+| 组件 | 安装方式 | 版本要求                      |
+|---|---|---------------------------|
+| Homebrew | 官方脚本 | 最新                        |
+| Java (JDK 17) | `brew install openjdk@17` | 17                        |
+| Java (JDK 21) | `brew install openjdk@21` | 21（JAVA_HOME 默认版本）        |
+| Maven | `brew install maven` | 最新稳定版                     |
+| Redis | `brew install redis` | 最新稳定版                     |
+| ZooKeeper | `brew install zookeeper` | 最新稳定版                     |
+| MySQL | `brew install mysql` | 最新稳定版                     |
+| Nacos | 官方安装脚本 | 3.2.2                     |
+| Kafka | `brew install kafka` | 最新稳定版                     |
+| Elasticsearch | `brew install elasticsearch` | 最新稳定版                     |
+| RocketMQ | 官方压缩包解压 | 5.5.0                     |
+| Go | `brew install go` | 最新稳定版                     |
+| Git | `brew install git` | 最新稳定版                     |
+| Node.js/npm | `brew install node` | 最新 LTS 版本                 |
+| Python | `brew install python` | 最新稳定版                     |
+| PostgreSQL & pgvector | `brew install postgresql pgvector` | PostgreSQL 18，pgvector 最新 |
 
 ## 安装前检查
 
@@ -49,7 +50,7 @@ description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (J
 | Maven | 命令是否存在 | `command -v mvn` |
 | Redis | 端口 6379 是否占用 | `lsof -i :6379` |
 | ZooKeeper | 端口 2181 是否占用；$HOME 和 $HOME/Downloads 下是否存在 zookeeper 目录 | `lsof -i :2181`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "zookeeper*"` |
-| MySQL | 端口 3306 是否占用 | `lsof -i :3306` |
+| MySQL | 命令是否存在 | `mysql --version` |
 | Nacos | 端口 8848 是否占用 | `lsof -i :8848` |
 | Kafka | 端口 9092 是否占用；$HOME 和 $HOME/Downloads 下是否存在 kafka 目录 | `lsof -i :9092`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "kafka*"` |
 | Elasticsearch | 端口 9200 是否响应；$HOME 和 $HOME/Downloads 下是否存在 elasticsearch 目录 | `curl -s localhost:9200`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "elasticsearch*"` |
@@ -58,6 +59,7 @@ description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (J
 | Git | 命令是否存在 | `command -v git` |
 | Node.js/npm | 命令是否存在 | `command -v node` |
 | Python | 命令是否存在 | `command -v python3` |
+| PostgreSQL | 命令是否存在 | `psql --version` |
 
 > **执行原则**：每个组件安装前先执行对应检查，已存在则跳过，不存在则安装。
 
@@ -128,8 +130,8 @@ fi
 ### 5. MySQL
 
 ```bash
-if lsof -i :3306 &>/dev/null; then
-  echo "MySQL 已运行（端口 3306），跳过"
+if mysql --version &>/dev/null; then
+  echo "MySQL 已安装，跳过"
 else
   brew install mysql
   brew services start mysql
@@ -247,6 +249,22 @@ else
 fi
 ```
 
+### 14. PostgreSQL & pgvector
+
+```bash
+# 检查 PostgreSQL
+if psql --version &>/dev/null; then
+  echo "PostgreSQL 已安装，跳过"
+else
+  # 一条命令同时安装 PostgreSQL 和 pgvector
+  brew install postgresql pgvector
+  brew services start postgresql@18
+fi
+
+# 在目标数据库中启用 pgvector 扩展
+# psql -d your_database -c "CREATE EXTENSION IF NOT EXISTS vector;"
+```
+
 ## 环境变量配置
 
 将以下内容追加到 `~/.zshrc`（敏感值用占位符，用户自行替换）：
@@ -330,7 +348,13 @@ node --version         # 应输出 Node.js 版本
 npm --version          # 应输出 npm 版本
 python3 --version      # 应输出 Python 版本
 nacos status           # 应输出 Nacos 状态（需先 nacos start）
+psql --version         # 应输出 PostgreSQL 版本
+psql -c "SELECT extname, extversion FROM pg_extension WHERE extname='vector';" your_database  # 应返回 pgvector 信息
 ```
+
+## 汇总安装结果
+
+> **执行原则**：所有安装步骤完成后，必须执行一次汇总验证，将所有组件的安装状态、版本信息以表格形式输出给用户。表格应包含：组件名称、安装状态（已安装/未安装/运行中）、版本号或关键信息。对于未安装或异常的组件，给出修复建议。
 
 ## 常用软件安装
 
