@@ -7,6 +7,10 @@ description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (J
 
 在新 Mac 上搭建完整的 Java 全栈开发环境，覆盖 whatsmars 项目核心技术所需的基础设施，包括 Java、Maven、中间件、数据库、搜索引擎、消息队列、Go、Git、Node.js、Python 环境及常用快捷命令。
 
+## 安装策略
+
+> **通用原则**：对于需要手动下载解压的组件（如 RocketMQ、Elasticsearch、Kafka、ZooKeeper 等），安装前先检查 `$HOME/` 和 `$HOME/Downloads/` 下是否已存在对应软件目录，若已存在则跳过安装，避免重复下载大文件或覆盖已有配置。
+
 ## 执行流程
 
 1. 安装 Homebrew（如未安装）
@@ -44,11 +48,11 @@ description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (J
 | Java | 命令是否存在 | `java -version` |
 | Maven | 命令是否存在 | `command -v mvn` |
 | Redis | 端口 6379 是否占用 | `lsof -i :6379` |
-| ZooKeeper | 端口 2181 是否占用 | `lsof -i :2181` |
+| ZooKeeper | 端口 2181 是否占用；$HOME 和 $HOME/Downloads 下是否存在 zookeeper 目录 | `lsof -i :2181`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "zookeeper*"` |
 | MySQL | 端口 3306 是否占用 | `lsof -i :3306` |
 | Nacos | 端口 8848 是否占用 | `lsof -i :8848` |
-| Kafka | 端口 9092 是否占用 | `lsof -i :9092` |
-| Elasticsearch | 端口 9200 是否响应 | `curl -s localhost:9200` |
+| Kafka | 端口 9092 是否占用；$HOME 和 $HOME/Downloads 下是否存在 kafka 目录 | `lsof -i :9092`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "kafka*"` |
+| Elasticsearch | 端口 9200 是否响应；$HOME 和 $HOME/Downloads 下是否存在 elasticsearch 目录 | `curl -s localhost:9200`；`find $HOME $HOME/Downloads -maxdepth 1 -type d -name "elasticsearch*"` |
 | RocketMQ | $HOME 和 $HOME/Downloads 下是否存在 rocketmq 目录 | `find $HOME $HOME/Downloads -maxdepth 1 -type d -name "rocketmq*"` |
 | Go | 命令是否存在 | `command -v go` |
 | Git | 命令是否存在 | `command -v git` |
@@ -112,8 +116,9 @@ fi
 ### 4. ZooKeeper
 
 ```bash
-if lsof -i :2181 &>/dev/null; then
-  echo "ZooKeeper 已运行（端口 2181），跳过"
+ZK_DIR=$(find $HOME $HOME/Downloads -maxdepth 1 -type d -name "zookeeper*" 2>/dev/null | head -1)
+if lsof -i :2181 &>/dev/null || [ -n "$ZK_DIR" ]; then
+  echo "ZooKeeper 已安装，跳过"
 else
   brew install zookeeper
   brew services start zookeeper
@@ -150,8 +155,9 @@ fi
 ### 7. Kafka
 
 ```bash
-if lsof -i :9092 &>/dev/null; then
-  echo "Kafka 已运行（端口 9092），跳过"
+KAFKA_DIR=$(find $HOME $HOME/Downloads -maxdepth 1 -type d -name "kafka*" 2>/dev/null | head -1)
+if lsof -i :9092 &>/dev/null || [ -n "$KAFKA_DIR" ]; then
+  echo "Kafka 已安装，跳过"
 else
   brew install kafka
   brew services start kafka
@@ -162,8 +168,9 @@ fi
 ### 8. Elasticsearch
 
 ```bash
-if curl -s localhost:9200 &>/dev/null; then
-  echo "Elasticsearch 已运行（端口 9200），跳过"
+ES_DIR=$(find $HOME $HOME/Downloads -maxdepth 1 -type d -name "elasticsearch*" 2>/dev/null | head -1)
+if curl -s localhost:9200 &>/dev/null || [ -n "$ES_DIR" ]; then
+  echo "Elasticsearch 已安装，跳过"
 else
   brew install elasticsearch
   brew services start elasticsearch
