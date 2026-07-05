@@ -10,6 +10,8 @@ description: 在新 Mac 上一键搭建 Java 全栈开发环境。安装 Java (J
 ## 安装策略
 
 > **通用原则**：对于需要手动下载解压的组件（如 RocketMQ、Elasticsearch、Kafka、ZooKeeper 等），安装前先检查 `$HOME/` 和 `$HOME/Downloads/` 下是否已存在对应软件目录，若已存在则跳过安装，避免重复下载大文件或覆盖已有配置。
+>
+> **只安装不启动**：RocketMQ、Kafka、Elasticsearch 仅执行安装，**不要启动服务**，由用户按需自行启动。
 
 ## 执行流程
 
@@ -162,7 +164,7 @@ if lsof -i :9092 &>/dev/null || [ -n "$KAFKA_DIR" ]; then
   echo "Kafka 已安装，跳过"
 else
   brew install kafka
-  brew services start kafka
+  # 仅安装，不启动服务，由用户按需自行启动
 fi
 # Kafka 默认依赖本机 ZooKeeper，端口 9092
 ```
@@ -175,7 +177,7 @@ if curl -s localhost:9200 &>/dev/null || [ -n "$ES_DIR" ]; then
   echo "Elasticsearch 已安装，跳过"
 else
   brew install elasticsearch
-  brew services start elasticsearch
+  # 仅安装，不启动服务，由用户按需自行启动
 fi
 ```
 
@@ -193,6 +195,7 @@ else
   rm rocketmq-all-5.5.0-bin-release.zip
   echo "RocketMQ 已安装到：$HOME/rocketmq-all-5.5.0-bin-release"
 fi
+# 仅安装，不启动服务，由用户按需自行启动
 ```
 
 ### 10. Go
@@ -251,6 +254,8 @@ fi
 
 ### 14. PostgreSQL & pgvector
 
+> **注意**：只需通过 brew 安装 pgvector 即可，**不需要**为用户在任何数据库中执行 `CREATE EXTENSION` 启用扩展。
+
 ```bash
 # 检查 PostgreSQL
 if psql --version &>/dev/null; then
@@ -260,9 +265,6 @@ else
   brew install postgresql pgvector
   brew services start postgresql@18
 fi
-
-# 在目标数据库中启用 pgvector 扩展
-# psql -d your_database -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
 
 ## 环境变量配置
@@ -340,7 +342,7 @@ redis-cli ping         # 应返回 PONG
 zkCli.sh -version      # 应输出 ZooKeeper 版本
 mysql --version        # 应输出 MySQL 版本
 kafka-topics --version # 应输出 Kafka 版本
-curl localhost:9200    # 应返回 ES 集群信息
+curl -s localhost:9200    # 如已启动应返回 ES 集群信息；未启动则跳过
 go version             # 应输出 go 版本
 protoc --version       # 应输出 protoc 版本
 git --version          # 应输出 git 版本
@@ -349,7 +351,6 @@ npm --version          # 应输出 npm 版本
 python3 --version      # 应输出 Python 版本
 nacos status           # 应输出 Nacos 状态（需先 nacos start）
 psql --version         # 应输出 PostgreSQL 版本
-psql -c "SELECT extname, extversion FROM pg_extension WHERE extname='vector';" your_database  # 应返回 pgvector 信息
 ```
 
 ## 汇总安装结果
