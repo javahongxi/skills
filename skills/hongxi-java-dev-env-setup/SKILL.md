@@ -296,8 +296,8 @@ export SPRING_CLOUD_NACOS_PASSWORD="your-nacos-password"
 将以下内容追加到 `~/.zshrc`：
 
 ```bash
-# Nacos 快捷命令
-export NACOS_HOME=$HOME/ai-infra/nacos/standalone/nacos-3.2.2
+# Nacos 快捷命令（自动检测实际安装目录）
+export NACOS_HOME=$(find $HOME/ai-infra $HOME $HOME/Downloads -maxdepth 3 -type d -name "nacos*" 2>/dev/null | while read d; do [ -f "$d/bin/startup.sh" ] && echo "$d" && break; done)
 
 nacos() {
   case "$1" in
@@ -310,8 +310,8 @@ nacos() {
       bash "$NACOS_HOME/bin/shutdown.sh"
       ;;
     status)
-      if pgrep -f "nacos.home.*$NACOS_HOME" > /dev/null; then
-        echo "Nacos is running (pid: $(pgrep -f "nacos.home.*$NACOS_HOME" | head -1))"
+      if pgrep -f "nacos.home" > /dev/null; then
+        echo "Nacos is running (pid: $(pgrep -f "nacos.home" | head -1))"
       else
         echo "Nacos is not running"
       fi
